@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.projects.quickbazaar"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.projects.quickbazaar"
