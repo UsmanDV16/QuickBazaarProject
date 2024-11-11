@@ -14,7 +14,7 @@ import com.projects.quickbazaar.ui.theme.*
 
 @Preview
 @Composable
-fun welcomeScreen() {
+fun WelcomeScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize(),

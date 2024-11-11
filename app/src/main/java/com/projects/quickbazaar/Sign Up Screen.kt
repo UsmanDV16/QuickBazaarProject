@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 
 @Composable
-fun signUpScreen(navController: NavController)
+fun SignUpScreen(navController: NavController)
 {
 
 }
