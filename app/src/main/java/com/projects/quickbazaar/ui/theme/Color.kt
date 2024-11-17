@@ -13,3 +13,5 @@ val Pink40 = Color(0xFF7D5260)
 val theme_blue = Color(0xFF1A0683)
 val theme_orange=Color(0xFFF9AE47)
 val white=Color(0xFFFFFFFF)
+
+val field_grey=Color(0xFFC1C1C1)

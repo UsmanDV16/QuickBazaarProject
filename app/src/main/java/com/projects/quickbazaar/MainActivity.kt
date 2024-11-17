@@ -1,5 +1,6 @@
 package com.projects.quickbazaar
 
+import com.google.firebase.FirebaseApp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,6 +18,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
+        FirebaseApp.initializeApp(this)
         setContent {
 
             val nav_control= rememberNavController()
@@ -26,18 +28,3 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    QuickBazaarTheme {
-        Greeting("Android")
-    }
-}

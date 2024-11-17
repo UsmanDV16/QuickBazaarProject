@@ -10,11 +10,12 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.projects.quickbazaar.ui.theme.*
 
-@Preview
 @Composable
-fun WelcomeScreen() {
+fun WelcomeScreen(navController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -35,17 +36,18 @@ fun WelcomeScreen() {
         Spacer(modifier = Modifier.height(300.dp))
 
         // Sign Up Button
+        var buttonController: CustomButton
 
-        LongButton(onClick = {  },
+        CustomButton.LongButton(onClick = {  },
             colors = ButtonDefaults.outlinedButtonColors(),
             border = BorderStroke(3.dp, theme_blue),
-            text = "Sign up", textColour = theme_blue)
+            text = "Sign up")
         Spacer(modifier = Modifier.height(11.dp))
 
         // Log In Button
-        LongButton(onClick = {  },
+        CustomButton.LongButton(onClick = { navController.navigate("login") },
             colors = ButtonDefaults.buttonColors(containerColor = theme_orange),
             border = BorderStroke(3.dp, theme_blue),
-            text = "Log in", textColour = theme_blue)
+            text = "Log in")
     }
 }

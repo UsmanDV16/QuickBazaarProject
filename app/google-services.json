@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "931346736760",
+    "project_id": "quickbazaar-ebb6e",
+    "storage_bucket": "quickbazaar-ebb6e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:931346736760:android:ca99988be51723aa136f8d",
+        "android_client_info": {
+          "package_name": "com.projects.quickbazaar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDYWvJ3ExtFM9Kjnu_C9zPIKlAejidnGXk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

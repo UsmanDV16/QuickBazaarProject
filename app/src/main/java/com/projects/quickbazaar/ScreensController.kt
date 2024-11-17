@@ -11,9 +11,9 @@ class ScreensControllerHost constructor(navController:NavHostController) {
     public fun AppNavHost()
     {
         NavHost(navController = nav_controller, startDestination = "welcome") {
-            composable("welcome") { welcomeScreen() }
-            composable("login") { loginScreen(nav_controller) }
-            composable("signup") { signUpScreen(nav_controller) }
+            composable("welcome") { WelcomeScreen(nav_controller) }
+            composable("login") { LoginScreen(nav_controller) }
+            composable("signup") { SignUpScreen(nav_controller) }
             // Add other screens here, such as home or product details
         }
     }
