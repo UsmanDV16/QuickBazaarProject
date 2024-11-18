@@ -38,7 +38,7 @@ fun WelcomeScreen(navController: NavHostController) {
         // Sign Up Button
         var buttonController: CustomButton
 
-        CustomButton.LongButton(onClick = {  },
+        CustomButton.LongButton(onClick = { navController.navigate("signup") },
             colors = ButtonDefaults.outlinedButtonColors(),
             border = BorderStroke(3.dp, theme_blue),
             text = "Sign up")

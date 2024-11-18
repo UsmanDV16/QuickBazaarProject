@@ -14,6 +14,8 @@ class ScreensControllerHost constructor(navController:NavHostController) {
             composable("welcome") { WelcomeScreen(nav_controller) }
             composable("login") { LoginScreen(nav_controller) }
             composable("signup") { SignUpScreen(nav_controller) }
+            composable("home") { HomeScreen(nav_controller) }
+
             // Add other screens here, such as home or product details
         }
     }
