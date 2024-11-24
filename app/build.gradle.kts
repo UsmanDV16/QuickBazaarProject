@@ -76,4 +76,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
 
     implementation("com.google.firebase:firebase-database")
+
+    implementation("androidx.compose.material:material-icons-extended:1.5.0")
+
 }
