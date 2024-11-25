@@ -66,6 +66,7 @@ dependencies {
     implementation(libs.androidx.runtime.livedata)
     implementation("io.coil-kt.coil3:coil-compose:3.0.2")
     implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
+    implementation(libs.androidx.material3.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -77,4 +78,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
 
     implementation("com.google.firebase:firebase-database")
+
+    implementation("androidx.compose.material:material-icons-extended:1.5.0")
+
 }
