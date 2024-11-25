@@ -64,6 +64,8 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
     implementation(libs.androidx.runtime.livedata)
+    implementation("io.coil-kt.coil3:coil-compose:3.0.2")
+    implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

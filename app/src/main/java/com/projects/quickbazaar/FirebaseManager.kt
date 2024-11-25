@@ -9,5 +9,8 @@ import com.google.firebase.database.FirebaseDatabase
 interface FirebaseManager {
     val auth: FirebaseAuth
     val database: DatabaseReference
-
+}
+interface FirebaseDataManager
+{
+    val database:DatabaseReference
 }

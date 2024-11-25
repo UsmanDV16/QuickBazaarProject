@@ -37,7 +37,7 @@ fun LoginScreen(navController:NavHostController, loginViewModel: LoginViewModel 
 {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-
+    var handledLoginStatus by remember { mutableStateOf(false) }
     val loginStatus by loginViewModel.loginStatus.observeAsState()
 
     Column (
@@ -53,7 +53,7 @@ fun LoginScreen(navController:NavHostController, loginViewModel: LoginViewModel 
                 .align(Alignment.Start)
                 .padding(10.dp)
                 .size(45.dp)
-                .clickable { navController.navigate(navController.popBackStack()) }
+                .clickable { navController.popBackStack() }
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -187,12 +187,18 @@ fun LoginScreen(navController:NavHostController, loginViewModel: LoginViewModel 
     }
 
     loginStatus?.let {
-        if (it.first) {
-            Toast.makeText(LocalContext.current, "Logged-in Successfully!", Toast.LENGTH_SHORT).show()
-            navController.navigate("home")
-        } else {
-            Toast.makeText(LocalContext.current, "Error: ${it.second}", Toast.LENGTH_SHORT).show()
-            Log.d(it.second, "k")
+        if (!handledLoginStatus) {
+            if (it.first) {
+                Toast.makeText(LocalContext.current, "Logged-in Successfully!", Toast.LENGTH_SHORT)
+                    .show()
+                navController.navigate("home")
+
+            } else {
+                Toast.makeText(LocalContext.current, "Error: ${it.second}", Toast.LENGTH_SHORT)
+                    .show()
+                Log.d(it.second, "k")
+            }
+            handledLoginStatus=true
         }
     }
 }

@@ -18,7 +18,7 @@ class UserRegistration(override val auth: FirebaseAuth=FirebaseAuth.getInstance(
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val userId = auth.currentUser?.uid ?: ""
-                    val newUser = User(userId, name, email, phoneNo)
+                    val newUser = User(name, email, phoneNo)
 
                     // Save user to Realtime Database
                     database.child(userId).setValue(newUser)
