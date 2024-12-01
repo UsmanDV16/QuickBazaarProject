@@ -20,6 +20,14 @@ class HomeViewModel : ProductViewModel() {
         fetchAllProducts()
     }
 
+    fun searchProducts(query: String): List<ProductHighlight> {
+        val tokens = query.trim().split("\\s+".toRegex())
+        return allProducts.filter { product ->
+            tokens.any { token ->
+                product.name.contains(token, ignoreCase = true)
+            }
+        }
+    }
     override fun fetchAllProducts() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -29,6 +37,8 @@ class HomeViewModel : ProductViewModel() {
 
                 for (childSnapshot in snapshot.children) {
                     val product = ProductHighlight(
+                        ID=childSnapshot.key.toString(),
+
                         name = childSnapshot.child("Name").value?.toString() ?: "Unknown",
                         price = childSnapshot.child("Price").value?.toString() ?: "0",
                         imageUrl = childSnapshot.child("Images").child("1").value?.toString() ?: ""

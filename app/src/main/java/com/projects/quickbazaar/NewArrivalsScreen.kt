@@ -15,7 +15,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.projects.quickbazaar.ui.theme.theme_blue
 import com.projects.quickbazaar.ui.theme.theme_orange
@@ -82,7 +81,7 @@ fun NewArrivalsScreen(navController: NavHostController, newArrivalsViewModel:New
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     rowItems.forEach { product ->
-                        ProductCard(product = product, modifier = Modifier.weight(1f))
+                        ProductCard(navController, product = product, modifier = Modifier.weight(1f))
                     }
                     if (rowItems.size < 2) Spacer(modifier = Modifier.weight(1f))
                 }

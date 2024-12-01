@@ -27,6 +27,8 @@ class NewArrivalsViewModel:ProductViewModel() {
                     if (dateAdded != null) {
                         val parsedDate = LocalDate.parse(dateAdded, DateTimeFormatter.ISO_DATE)
                         val product = ProductHighlight(
+                            ID=productSnapshot.key.toString(),
+
                             name = productSnapshot.child("Name").value?.toString() ?: "Unknown",
                             price = productSnapshot.child("Price").value?.toString() ?: "0",
                             imageUrl = productSnapshot.child("Images").child("1").value?.toString() ?: ""

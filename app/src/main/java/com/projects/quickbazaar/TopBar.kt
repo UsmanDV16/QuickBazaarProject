@@ -11,16 +11,27 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,23 +42,64 @@ import com.projects.quickbazaar.ui.theme.theme_orange
 
 
 @Composable
-fun TopBar(navController: NavHostController) {
-    val currentRoute = currentRoute(navController)
-
+@OptIn(ExperimentalMaterial3Api::class)
+fun TopBar(
+    navController: NavHostController,
+    isSearchMode: MutableState<Boolean>,
+    searchQuery: MutableState<String>,
+    onSearch: () -> Unit={}
+) {
     Row(
         modifier = Modifier
-            .fillMaxWidth().height(70.dp)
+            .fillMaxWidth()
+            .height(70.dp)
             .background(theme_orange)
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
+        if (isSearchMode.value) {
+            // Back button and search bar
+            IconButton(onClick = { isSearchMode.value = false }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_back),
+                    contentDescription = "Back",
+                    tint = theme_light_blue,
+                    modifier = Modifier.size(32.dp)
+                )
+            }
 
-            Column(
-                horizontalAlignment = AbsoluteAlignment.Left,
-                modifier = Modifier.fillMaxHeight()
+            TextField(
+                value = searchQuery.value,
+                onValueChange = { searchQuery.value = it },
+                placeholder = { Text("Search") },
+                modifier = Modifier
+                    .weight(1f)
+                    .background(Color.White, shape = RoundedCornerShape(8.dp))
+                    .padding(horizontal = 8.dp),
+                colors = TextFieldDefaults.colors(
+                    focusedTextColor = Color.Black,
+                    cursorColor = Color.Black,
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White,
+                    focusedPlaceholderColor = Color.Gray
+                ),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Search
+                ),
+                keyboardActions = KeyboardActions(
+                    onSearch = {
+                        onSearch()
+                    }
+                )
             )
-            {
+        } else {
+            // Regular TopBar
+            Column(
+                horizontalAlignment = Alignment.Start,
+                modifier = Modifier.fillMaxHeight()
+            ) {
                 Text(
                     text = "Welcome,",
                     fontSize = 15.sp,
@@ -62,14 +114,12 @@ fun TopBar(navController: NavHostController) {
                     modifier = Modifier.offset(0.dp, -5.dp)
                 )
             }
-            Row() {
+            Row {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.offset(6.dp)
-                )
-                {
-
-                    IconButton(onClick = { /* Handle Search Click */ }) {
+                ) {
+                    IconButton(onClick = { isSearchMode.value = true }) {
                         Icon(
                             painter = painterResource(id = R.drawable.search_icon),
                             contentDescription = "Search",
@@ -80,11 +130,8 @@ fun TopBar(navController: NavHostController) {
                 }
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
-
-                )
-                {
-
-                    IconButton(onClick = { /* Handle Profile Click */ }) {
+                ) {
+                    IconButton(onClick = {  navController.navigate("accountManagement")}) {
                         Icon(
                             painter = painterResource(id = R.drawable.profile_icon),
                             contentDescription = "Profile",
@@ -92,12 +139,8 @@ fun TopBar(navController: NavHostController) {
                             modifier = Modifier.size(32.dp)
                         )
                     }
-
                 }
             }
-
-
-
+        }
     }
-
 }

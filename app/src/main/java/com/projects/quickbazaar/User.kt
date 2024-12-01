@@ -1,7 +1,7 @@
 package com.projects.quickbazaar
 
 data class User(
-val name: String,
-val email: String,
-val phoneNo: String
+val Name: String,
+val Email: String,
+val PhoneNo: String
 )

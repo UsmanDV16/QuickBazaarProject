@@ -21,10 +21,12 @@ class CategoryProductsViewModel(private val categoryId: String):ProductViewModel
                 val snapshot = database.get().await()
                 val productList = mutableListOf<ProductHighlight>()
 
+
                 for (productSnapshot in snapshot.children) {
                     val productCategoryId = productSnapshot.child("CategoryID").value?.toString()?:""
                     if (productCategoryId == categoryId) {
                         val product = ProductHighlight(
+                            ID=productSnapshot.key.toString(),
                             name = productSnapshot.child("Name").value?.toString() ?: "Unknown",
                             price = productSnapshot.child("Price").value?.toString() ?: "0",
                             imageUrl = productSnapshot.child("Images").child("1").value?.toString() ?: ""

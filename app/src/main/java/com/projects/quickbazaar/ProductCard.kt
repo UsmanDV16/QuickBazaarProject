@@ -2,6 +2,7 @@ package com.projects.quickbazaar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -20,11 +21,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 
 
 @Composable
-fun ProductCard(product: ProductHighlight, modifier: Modifier = Modifier) {
+fun ProductCard(navController: NavHostController, product: ProductHighlight, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .background(color = Color.Transparent, shape = RoundedCornerShape(20.dp))
@@ -37,6 +40,7 @@ fun ProductCard(product: ProductHighlight, modifier: Modifier = Modifier) {
                 .size(200.dp)
                 .clip(RoundedCornerShape(20.dp))
                 .border(1.dp, Color.LightGray, RoundedCornerShape(20.dp))
+                .clickable { navController.navigate("productDetails/${product.ID}") }
         ) {
             AsyncImage(
                 model = product.imageUrl,

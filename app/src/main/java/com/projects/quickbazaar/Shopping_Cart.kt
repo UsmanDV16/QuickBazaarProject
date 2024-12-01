@@ -74,33 +74,27 @@ fun ShoppingCartScreen() {
             modifier = Modifier.padding(16.dp)
         ) {
             // Back arrow with outline
-            IconButton(
-                onClick = { /* Handle back navigation */ },
+            Icon(
+                painter = painterResource(id = R.drawable.ic_back), // Replace with your back icon resource
+                contentDescription = "Back",
+                tint = theme_blue,
                 modifier = Modifier
-                    .size(48.dp)
-                    .border(2.dp, Color.Blue, CircleShape)
-                    .clip(CircleShape)
-                    .background(Color.White)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back",
-                    tint = Color.Blue,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Title
-            Text(
-                text = "SHOPPING\nCART",
-                color = Color(0xFF0000FF),
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold
+                    .align(Alignment.Start)
+                    .padding(10.dp)
+                    .size(45.dp)
+                    .clickable { /*navController.popBackStack()*/ }
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "SHOPPING CART",
+                fontSize = 60.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = theme_blue,
+                textAlign = TextAlign.Left,
+                modifier = Modifier.offset(14.dp, -10.dp)
+            )
+
 
             // Cart items
             CartItem(

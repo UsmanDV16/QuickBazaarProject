@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -36,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -62,9 +64,117 @@ import com.projects.quickbazaar.ui.theme.theme_orange
 import kotlinx.coroutines.currentCoroutineContext
 
 
-
-@Preview
 @Composable
+fun TrackOrderScreen(navController: NavHostController, orderId: String) {
+    val viewModel: TrackOrderViewModel = viewModel()
+    val orderDetails by viewModel.orderDetails.observeAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchOrderDetails(orderId)
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        // Back button
+        Icon(
+            painter = painterResource(id = R.drawable.ic_back),
+            contentDescription = "Back",
+            tint = theme_blue,
+            modifier = Modifier
+                .align(Alignment.Start)
+                .size(45.dp)
+                .clickable { navController.popBackStack() }
+        )
+
+        // Title
+        Text(
+            text = "TRACK ORDER",
+            fontSize = 32.sp,
+            fontWeight = FontWeight.ExtraBold,
+            color = theme_blue,
+            modifier = Modifier.padding(top = 16.dp)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Scrollable content
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            orderDetails?.let { order ->
+                item {
+                    // Order ID
+                    Text(
+                        text = "Order ID: ${order.orderId}",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+
+                    // Order Summary
+                    Text(
+                        text = "Order Summary",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+
+                    order.products.forEach { (productId, quantity) ->
+                        Text(
+                            text = "$quantity x $productId",
+                            fontSize = 16.sp,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Current Status
+                    Text(
+                        text = "Current Status",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+
+                    val statusText = when (order.status) {
+                        "Received", "In Progress" -> "In preparation/packaging"
+                        "Dispatched" -> "Departured from Warehouse"
+                        else -> order.status
+                    }
+
+                    Text(
+                        text = statusText,
+                        fontSize = 16.sp,
+                        color = if (statusText == "Departured from Warehouse") Color.Red else Color.Black,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Expected Arrival
+                    Text(
+                        text = "Expected Arrival: ${order.expectedArrival}",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = theme_blue,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+/*
 fun TrackOrderScreen() {
     Scaffold(
         containerColor = Color.White
@@ -81,7 +191,9 @@ fun TrackOrderScreen() {
                     .size(56.dp) // Slightly larger size
                     .clip(CircleShape)
                     .border(4.dp, Color.Blue, CircleShape) // Thicker blue outline
-                    .clickable { /* Handle back click */ },
+                    .clickable { */
+/* Handle back click *//*
+ },
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -254,3 +366,4 @@ fun TrackOrderScreen() {
         }
     }
 }
+*/

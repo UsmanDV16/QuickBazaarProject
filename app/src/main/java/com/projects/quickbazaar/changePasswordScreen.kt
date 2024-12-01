@@ -1,5 +1,6 @@
 package com.projects.quickbazaar
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -9,171 +10,141 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.projects.quickbazaar.ui.theme.field_grey
 import com.projects.quickbazaar.ui.theme.theme_blue
+import com.projects.quickbazaar.ui.theme.theme_orange
+
 
 @Composable
-fun ChangePasswordScreen() {
-    // State variables to store text field data
+fun ChangePasswordScreen(navController:NavHostController, changePassViewModel:ChangePasswordViewModel) {
+    val changePasswordStatus by changePassViewModel.changePasswordStatus.observeAsState()
     var currentPassword by remember { mutableStateOf("") }
     var newPassword by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+    var handledStatus by remember { mutableStateOf(false) }
 
-    // Top-level container
-
-    Column (
-        horizontalAlignment = AbsoluteAlignment.Left,
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top,
-        modifier=Modifier.padding(10.dp)
-    ){
+        modifier = Modifier.padding(10.dp)
+    ) {
         Icon(
             painter = painterResource(id = R.drawable.ic_back), // Replace with your back icon resource
             contentDescription = "Back",
             tint = theme_blue,
             modifier = Modifier
                 .align(Alignment.Start)
-                .padding(10.dp)
+                .padding(10.dp).offset(2.dp, 5.dp)
                 .size(45.dp)
+                .clickable { navController.popBackStack() }
         )
-//    Column(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .background(Color.White)
-//            .padding(16.dp),
-//        horizontalAlignment = Alignment.CenterHorizontally
-//    ) {
-        // Back Arrow Row
-//        Row(
-//            modifier = Modifier.fillMaxWidth(),
-//            verticalAlignment = Alignment.CenterVertically
-//        ) {
-//            Icon(
-//                painter = painterResource(id = R.drawable.ic_back), // Replace with your back icon resource
-//                contentDescription = "Back",
-//                tint = theme_blue,
-//                modifier = Modifier
-//                    .align(Alignment.Start)
-//                    .padding(10.dp)
-//                    .size(45.dp)
-//                    .clickable { navController.navigate(navController.popBackStack()) }
-//            )
-////            Icon(
-////                imageVector = Icons.Default.ArrowBack,
-////                contentDescription = "Back",
-////                tint = Color(0xFF3F1E94),
-////                modifier = Modifier.size(32.dp)
-////            )
-//            Spacer(modifier = Modifier.width(8.dp))
-//        }
 
-        Spacer(modifier = Modifier.height(16.dp))
 
-        // Title
         Text(
-            text = "CHANGE PASSWORD",
-            color = Color(0xFF3F1E94),
-            fontSize = 42.sp,
-            fontWeight = FontWeight.Bold
+            text = "CURRENT PASSWORD",
+            fontSize = 60.sp,
+            fontWeight = FontWeight.ExtraBold,
+            color = theme_blue,
+            textAlign = TextAlign.Left,
+            modifier = Modifier.offset(14.dp, -10.dp)
         )
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Current Password TextField
-        PasswordInputField(
-            label = "Current Password",
-            placeholder = "Enter current password",
+        OutlinedTextField(
             value = currentPassword,
-            onValueChange = { currentPassword = it }
+            onValueChange = { currentPassword = it },
+            label = { Text("Current Password", fontWeight = FontWeight.Bold) },
+            placeholder = { Text("Enter your current password") },
+            modifier = Modifier.fillMaxWidth(0.9f),
+            shape = RoundedCornerShape(45),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = field_grey,
+                unfocusedContainerColor = Color.Transparent,
+                focusedLabelColor = theme_blue,
+                unfocusedLabelColor = Color.Gray,
+                focusedIndicatorColor = Color.Gray,
+                unfocusedIndicatorColor = Color.Gray
+            ),
+            singleLine = true,
         )
 
         Spacer(modifier = Modifier.height(40.dp))
 
-        // New Password TextField
-        PasswordInputField(
-            label = "New Password",
-            placeholder = "Enter new password",
+        OutlinedTextField(
             value = newPassword,
-            onValueChange = { newPassword = it }
+            onValueChange = { newPassword = it },
+            label = { Text("New Password", fontWeight = FontWeight.Bold) },
+            placeholder = { Text("Enter a new password") },
+            modifier = Modifier.fillMaxWidth(0.9f),
+            shape = RoundedCornerShape(45),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = field_grey,
+                unfocusedContainerColor = Color.Transparent,
+                focusedLabelColor = theme_blue,
+                unfocusedLabelColor = Color.Gray,
+                focusedIndicatorColor = Color.Gray,
+                unfocusedIndicatorColor = Color.Gray
+            ),
+            singleLine = true,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Confirm Password TextField
-        PasswordInputField(
-            label = "Confirm Password",
-            placeholder = "Enter current password",
+        OutlinedTextField(
             value = confirmPassword,
-            onValueChange = { confirmPassword = it }
+            onValueChange = { confirmPassword = it },
+            label = { Text("Confirm Password", fontWeight = FontWeight.Bold) },
+            placeholder = { Text("Re-enter new password") },
+            modifier = Modifier.fillMaxWidth(0.9f),
+            shape = RoundedCornerShape(45),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = field_grey,
+                unfocusedContainerColor = Color.Transparent,
+                focusedLabelColor = theme_blue,
+                unfocusedLabelColor = Color.Gray,
+                focusedIndicatorColor = Color.Gray,
+                unfocusedIndicatorColor = Color.Gray
+            ),
+            singleLine = true,
         )
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Update Button
-        Button(
+        CustomButton.LongButton(
             onClick = {
-                // Handle button click, e.g., validate and update passwords
-                println("Current Password: $currentPassword")
-                println("New Password: $newPassword")
-                println("Confirm Password: $confirmPassword")
+                changePassViewModel.changePassword(currentPassword, newPassword, confirmPassword)
             },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFFFA500),
-                contentColor = Color(0xFF3F1E94)
-            ),
+            colors = ButtonDefaults.outlinedButtonColors(containerColor = theme_orange),
             border = BorderStroke(3.dp, theme_blue),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-            shape = RoundedCornerShape(50)
-        ) {
-            Text(text = "Update", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-        }
+            text = "Update"
+        )
     }
-}
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun PasswordInputField(
-    label: String,
-    placeholder: String,
-    value: String,
-    onValueChange: (String) -> Unit
-) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = label,
-            color = Color.Black,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.SemiBold
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        TextField(
-            value = value,
-            onValueChange = onValueChange,
-            placeholder = { Text(placeholder) },
-            singleLine = true,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.LightGray, RoundedCornerShape(8.dp)),
-            colors = TextFieldDefaults.textFieldColors(
-                containerColor = Color.LightGray,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
-            ),
-            //shape = RoundedCornerShape(8.dp)
-            shape = RoundedCornerShape(45),
-
-
-        )
+    changePasswordStatus?.let {
+        if (!handledStatus) {
+            if (it.first) {
+                Toast.makeText(LocalContext.current, "Password updated successfully!", Toast.LENGTH_SHORT).show()
+                navController.popBackStack()
+            } else {
+                Toast.makeText(LocalContext.current, "Error: ${it.second}", Toast.LENGTH_SHORT).show()
+            }
+            handledStatus = true
+        }
     }
 }

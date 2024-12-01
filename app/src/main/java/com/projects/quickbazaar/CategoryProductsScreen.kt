@@ -77,7 +77,7 @@ fun CategoryProductsScreen(navController:NavHostController,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     rowItems.forEach { product ->
-                        ProductCard(product = product, modifier = Modifier.weight(1f))
+                        ProductCard(navController, product = product, modifier = Modifier.weight(1f))
                     }
                     if (rowItems.size < 2) Spacer(modifier = Modifier.weight(1f))
                 }
