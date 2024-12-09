@@ -17,15 +17,7 @@ class OrderHistoryViewModel : ViewModel() {
     val orderList: LiveData<List<Order>>
         get() = _orderList
 
-    fun fetchProductName(productId: String): String? {
-        return try {
-            val productRef = database.child("Products").child(productId).child("Name").get()
-            productRef.result.value.toString()?:""
-        } catch (e: Exception) {
-            Log.e("FetchProductName", "Error fetching product name: ${e.message}")
-            null
-        }
-    }
+
 
     fun fetchOrders(userId: String) {
         val orders = mutableListOf<Order>()

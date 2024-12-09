@@ -121,7 +121,7 @@ fun TopBar(
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "User!",
+                    text = getUserName(getCurrentUserId()!!),
                     fontSize = 15.sp,
                     color = theme_blue,
                     fontWeight = FontWeight.Bold,

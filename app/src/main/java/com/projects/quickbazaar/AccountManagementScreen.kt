@@ -121,7 +121,7 @@ fun AccountManagementScreen(navController:NavHostController) {
                         painter = painterResource(id = R.drawable.change_pass),
                         contentDescription = "Change Password",
                         modifier = Modifier.size(130.dp)
-                            .clickable{navController.navigate("changePass/${getCurrentUserId()}")}
+                            .clickable{navController.navigate("changePass")}
                     )
                     Spacer(modifier = Modifier.height(8.dp))
 

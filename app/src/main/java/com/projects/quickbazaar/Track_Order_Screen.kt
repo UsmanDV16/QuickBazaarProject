@@ -63,306 +63,118 @@ import com.projects.quickbazaar.ui.theme.theme_blue
 import com.projects.quickbazaar.ui.theme.theme_orange
 import kotlinx.coroutines.currentCoroutineContext
 
-
 @Composable
 fun TrackOrderScreen(navController: NavHostController, orderId: String, viewModel: TrackOrderViewModel) {
-    val orderDetails = viewModel._orderDetails
+    val orderDetails by viewModel._orderDetails.observeAsState()
 
     LaunchedEffect(Unit) {
         viewModel.fetchOrderDetails(orderId)
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
+        horizontalAlignment = AbsoluteAlignment.Left,
+        verticalArrangement = Arrangement.Top,
+        modifier = Modifier.padding(10.dp)
     ) {
-        // Back button
         Icon(
-            painter = painterResource(id = R.drawable.ic_back),
+            painter = painterResource(id = R.drawable.ic_back), // Replace with your back icon resource
             contentDescription = "Back",
             tint = theme_blue,
             modifier = Modifier
                 .align(Alignment.Start)
+                .padding(10.dp)
                 .size(45.dp)
                 .clickable { navController.popBackStack() }
         )
 
-        // Title
+
         Text(
-            text = "TRACK ORDER",
-            fontSize = 32.sp,
+            text = "TRACK\nORDER",
+            fontSize = 60.sp,
             fontWeight = FontWeight.ExtraBold,
             color = theme_blue,
-            modifier = Modifier.padding(top = 16.dp)
+            textAlign = TextAlign.Left,
+            modifier = Modifier.offset(14.dp, -10.dp)
         )
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize().offset(0.dp, 190.dp).padding(horizontal =20.dp),
+        horizontalAlignment = Alignment.Start
+    ) {
+
+        Row() {
+            Text(
+                text = "Order ID:",
+                fontSize = 19.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = Color.Black,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+            Spacer(Modifier.width(4.dp))
+            Text(
+                text = "${orderDetails?.orderId ?: "Loading..."}",
+            fontSize = 19.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color.Gray,
+            modifier = Modifier.padding(vertical = 8.dp)
+            )
+
+        }
+        Text(
+            text = "Order Summary",
+            fontSize = 23.sp,
+            fontWeight = FontWeight.ExtraBold,
+            color = Color.Black,
+            modifier = Modifier.padding(top = 10.dp)
+        )
+
+        orderDetails?.products?.forEach { (productId, quantity) ->
+            Text(
+                text = "$quantity x ${fetchProductName(productId)}",
+                fontSize = 16.sp,
+                color = Color.Gray,
+                modifier = Modifier.padding(vertical = 4.dp)
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Scrollable content
-        LazyColumn(
-            modifier = Modifier.fillMaxSize()
-        ) {
 
-                item {
-                    // Order ID
-                    Text(
-                        text = "Order ID: ${orderDetails.value!!.orderId}",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
+        Text(
+            text = "Current Status",
+            fontSize = 23.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black,
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
 
-                    // Order Summary
-                    Text(
-                        text = "Order Summary",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
-
-                    orderDetails.value!!.products.forEach { (productId, quantity) ->
-                        Text(
-                            text = "$quantity x $productId",
-                            fontSize = 16.sp,
-                            color = Color.Gray,
-                            modifier = Modifier.padding(vertical = 4.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Current Status
-                    Text(
-                        text = "Current Status",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
-
-                    val statusText = when (orderDetails.value!!.status) {
-                        "Received/In-Progress" -> "In preparation/packaging"
-                        "Dispatched" -> "Departured from Warehouse"
-                        else -> orderDetails.value!!.status
-                    }
-
-                    Text(
-                        text = statusText,
-                        fontSize = 16.sp,
-                        color = if (statusText == "Departured from Warehouse") Color.Red else Color.Black,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(vertical = 4.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Expected Arrival
-                    Text(
-                        text = "Expected Arrival: ${orderDetails.value!!.expectedArrival}",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = theme_blue,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
-                }
-            }
+        val statusText = when (orderDetails?.status) {
+            "Received/In-Progress" -> "In preparation/packaging"
+            "Dispatched" -> "Departured from Warehouse"
+            else -> orderDetails?.status ?: "Loading..."
         }
-    }
+Row(horizontalArrangement = Arrangement.Center,
+    modifier = Modifier.fillMaxWidth()) {
+    Text(
+        text = statusText,
+        fontSize = 16.sp,
+        color = if (statusText == "Departured from Warehouse") Color.Red else Color.Black,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(vertical = 4.dp)
+    )
+}
 
+        Spacer(modifier = Modifier.height(16.dp))
 
-/*
-fun TrackOrderScreen() {
-    Scaffold(
-        containerColor = Color.White
-    ) { contentPadding -> // Accept the content padding from Scaffold
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(contentPadding) // Apply content padding here
-                .padding(16.dp) // Additional padding for screen content
-        ) {
-            // Back Arrow with Circular Outline
-            Box(
-                modifier = Modifier
-                    .size(56.dp) // Slightly larger size
-                    .clip(CircleShape)
-                    .border(4.dp, Color.Blue, CircleShape) // Thicker blue outline
-                    .clickable { */
-/* Handle back click *//*
- },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back",
-                    tint = Color.Black,
-                    modifier = Modifier.size(28.dp) // Increased icon size
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Row for Title and Icons
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 4.dp), // Padding for alignment
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Track Order Title
-                Text(
-                    text = "TRACK\nORDER",
-                    color = Color(0xFF000080), // Navy blue color
-                    fontSize = 49.sp, // Larger font size
-                    fontWeight = FontWeight.Bold,
-                    lineHeight = 44.sp, // Increased line height
-                    modifier = Modifier.weight(1f) // Take up available space
-                )
-
-                // Order Tracking Icons
-                Row(
-                    modifier = Modifier.weight(1f), // Align icons to the right
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.LocationOn,
-                        contentDescription = "Location",
-                        tint = Color.Black,
-                        modifier = Modifier.size(40.dp) // Increased icon size
-                    )
-                    Icon(
-                        imageVector = Icons.Default.LocalShipping, // Valid shipping icon
-                        contentDescription = "Shipping",
-                        tint = Color.Black,
-                        modifier = Modifier.size(40.dp)
-                    )
-                    Icon(
-                        imageVector = Icons.Default.CheckCircle,
-                        contentDescription = "Delivered",
-                        tint = Color(0xFF00FF00), // Green color
-                        modifier = Modifier.size(40.dp)
-                    )
-                }
-            }
-
-            // Line with Dots Under Icons
-            Spacer(modifier = Modifier.height(8.dp)) // Reduced spacing
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 100.dp) // Adjust line width to fit under icons
-                    .offset(x = 84.dp), // Shift the line and dots to the right
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Dot 1
-                Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .clip(CircleShape)
-                        .background(Color.Gray)
-                )
-                // Line between Dot 1 and Dot 2
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(2.dp)
-                        .background(Color.Gray)
-                )
-                // Dot 2
-                Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .clip(CircleShape)
-                        .background(Color.Gray)
-                )
-                // Line between Dot 2 and Dot 3
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(2.dp)
-                        .background(Color.Gray)
-                )
-                // Dot 3
-                Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .clip(CircleShape)
-                        .background(Color.Gray)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // Order ID
-            Text(
-                text = "Order ID: 12945378840920",
-                fontSize = 20.sp, // Larger font size
-                fontWeight = FontWeight.Medium,
-                color = Color.Black
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Order Summary Title
-            Text(
-                text = "Order Summary",
-                fontSize = 22.sp, // Larger font size
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Order Summary Details
-            Text(
-                text = "1 x SoundPulse Pro TWS Bluetooth Earbuds – True Wireless Stereo Earphones with Hi-Fi Audio",
-                fontSize = 18.sp, // Larger font size
-                color = Color.Gray
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "1 x PowerLink Max USB Cable – High-Speed Charging and Data Sync Cable with Durable Braided Design",
-                fontSize = 18.sp, // Larger font size
-                color = Color.Gray
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // Current Status Title
-            Text(
-                text = "Current Status",
-                fontSize = 22.sp, // Larger font size
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Current Status Text
-            Text(
-                text = "Departed from Warehouse",
-                fontSize = 20.sp, // Larger font size
-                fontWeight = FontWeight.Bold,
-                color = Color.Red
-            )
-
-            Spacer(modifier = Modifier.height(48.dp))
-
-            // Expected Arrival
-            Text(
-                text = "Expected Arrival: 12/12/24",
-                fontSize = 20.sp, // Larger font size
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF000080) // Navy blue color
-            )
-        }
+        Text(
+            text = "Expected Arrival: ${orderDetails?.expectedArrival ?: "Loading..."}",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = theme_blue,
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
     }
 }
-*/
+

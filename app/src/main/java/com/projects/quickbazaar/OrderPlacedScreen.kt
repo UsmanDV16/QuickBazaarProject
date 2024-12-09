@@ -93,7 +93,7 @@ fun OrderPlacedScreen(navController: NavHostController,
 
         // Track Order Button
         Button(
-            onClick = { navController.navigate("trackOrder/$orderId") },
+            onClick = { navController.navigate("trackOrder/${orderId}") },
             border = BorderStroke(3.dp, theme_blue),
             colors = ButtonDefaults.buttonColors(Color(0xFFFFA500))
         ) {

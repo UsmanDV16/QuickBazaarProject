@@ -11,7 +11,7 @@ class NetworkMonitor(context: Context) {
     private val connectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-    private val _isConnected = MutableLiveData<Boolean>()
+    private val _isConnected = MutableLiveData<Boolean>(true)
     val isConnected: LiveData<Boolean> = _isConnected
 
     init {

@@ -1,6 +1,7 @@
 package com.projects.quickbazaar
 
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -158,13 +159,15 @@ fun HomeScreen(
     searchingMode: Boolean,
     searchMode: Boolean,
     searchQuery: String,
-    homeViewModel: HomeViewModel = viewModel()
+    homeViewModel: HomeViewModel
 ) {
 
 
-    if (homeViewModel.products.isEmpty() && !homeViewModel.isLoading.value)
+    if (homeViewModel.allProducts.isEmpty() && homeViewModel.products.isEmpty()&&!homeViewModel.isLoading.value)
         homeViewModel.fetchAllProducts()
-
+    if(!homeViewModel.fetched)
+        getCurrentUserId()?.let { homeViewModel.fetchLatestOrder(it) }
+    var orderId by homeViewModel._latestOrderId
     if (searchMode) {
         // Show search results based on the query
         var searchResults = emptyList<ProductHighlight>()
@@ -217,56 +220,51 @@ fun HomeScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Add your regular home screen content here
-                item {
-                    Text(
-                        text = "Welcome, User!",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = theme_orange,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-                }
 
-                // Top Buttons
                 item {
+                    Spacer(modifier=Modifier.height(32.dp))
                     Row(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp),
+                            .fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        OutlinedButton(
+                        Button(
                             onClick = { navController.navigate("newArrivals") },
                             colors = ButtonDefaults.buttonColors(containerColor = theme_orange),
-                            shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier.weight(1f)
+                            shape = RoundedCornerShape(25),
+                            modifier = Modifier.height(105.dp),
+                            border = BorderStroke(2.dp, theme_blue)
                         ) {
-                            Text(text = "New Arrivals", color = Color.White)
+                            Text(text = "New Arrivals", color = theme_blue, fontWeight = FontWeight.ExtraBold,
+                                fontSize=16.sp)
                         }
 
                         Spacer(modifier = Modifier.width(16.dp))
 
-                        OutlinedButton(
-                            onClick = { navController.navigate("trackOrder/${100000}") },
+                        Button(
+                            onClick = { navController.navigate("trackOrder/${orderId}") },
                             colors = ButtonDefaults.buttonColors(containerColor = theme_orange),
-                            shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier.weight(1f)
+                            shape = RoundedCornerShape(25),
+                            modifier = Modifier.height(105.dp),
+                            border = BorderStroke(2.dp, theme_blue)
                         ) {
-                            Text(text = "Track your order", color = Color.White)
+                            Text(text = "Track Order", color = theme_blue, fontWeight = FontWeight.ExtraBold,
+                                fontSize=16.sp)
                         }
                     }
                 }
 
                 // Explore Products Title
                 item {
+                    Spacer(Modifier.height(35.dp))
                     Text(
                         text = "Explore products",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF2E2E2E),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = theme_blue,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
                 }

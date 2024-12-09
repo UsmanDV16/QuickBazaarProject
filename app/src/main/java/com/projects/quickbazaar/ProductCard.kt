@@ -71,7 +71,7 @@ fun ProductCard(navController: NavHostController, product: ProductHighlight, mod
 
         // Product price
         Text(
-            text = "Rs. $product.price",
+            text = "Rs. ${product.price}",
             fontSize = 18.sp,
             color = Color.Red,
             fontWeight = FontWeight.ExtraBold,

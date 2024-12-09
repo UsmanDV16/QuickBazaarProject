@@ -24,19 +24,35 @@ class  TrackOrderViewModel : ViewModel() {
         database.child("Order").child(orderId)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val orderTime = snapshot.child("Order_Time_and_Date").getValue(String::class.java) ?: "Unknown"
-                    val status = snapshot.child("Status").getValue(String::class.java) ?: "Unknown"
-                    val userId = snapshot.child("UserID").getValue(String::class.java) ?: "Unknown"
-                    val productMap = mutableMapOf<String, Int>()
+                   if(snapshot.exists())
+                   {
+                       val orderTime =
 
-                    snapshot.child("Products").children.forEach { productSnapshot ->
-                        val productId = productSnapshot.key ?: return@forEach
-                        val quantity = productSnapshot.getValue(Int::class.java) ?: 0
-                        productMap[productId] = quantity
-                    }
+                            snapshot.child("Order_Time_and_Date").getValue(String::class.java)
+                                ?: "Unknown"
+                        val status =
+                            snapshot.child("Status").getValue(String::class.java) ?: "Unknown"
+                        val userId =
+                            snapshot.child("UserID").getValue(String::class.java) ?: "Unknown"
+                        val productMap = mutableMapOf<String, Int>()
 
-                    val expectedArrival = calculateExpectedArrival(orderTime)
-                    _orderDetails.postValue(OrderDetails(orderId, status, orderTime, expectedArrival, productMap))
+                        snapshot.child("Products").children.forEach { productSnapshot ->
+                            val productId = productSnapshot.key ?: return@forEach
+                            val quantity = productSnapshot.getValue(Int::class.java) ?: 0
+                            productMap[productId] = quantity
+                        }
+
+                        val expectedArrival = calculateExpectedArrival(orderTime)
+                        _orderDetails.postValue(
+                            OrderDetails(
+                                orderId,
+                                status,
+                                orderTime,
+                                expectedArrival,
+                                productMap
+                            )
+                        )
+                       }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -48,7 +64,7 @@ class  TrackOrderViewModel : ViewModel() {
 
     private fun calculateExpectedArrival(orderTime: String): String {
         return try {
-            val dateFormat = SimpleDateFormat("dd/mm/yy", Locale.getDefault())
+            val dateFormat = SimpleDateFormat("dd-MM-yy", Locale.getDefault())
             val orderDate = dateFormat.parse(orderTime)
             val calendar = Calendar.getInstance()
             calendar.time = orderDate!!

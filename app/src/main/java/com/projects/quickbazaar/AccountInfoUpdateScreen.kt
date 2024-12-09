@@ -158,24 +158,7 @@ fun AccountInfoUpdateScreen(
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Address Field
-            OutlinedTextField(
-                value = address,
-                onValueChange = { address = it },
-                label = { Text("Address", fontWeight = FontWeight.Bold) },
-                placeholder = { Text("Enter your Home/Office Address") },
-                modifier = Modifier.fillMaxWidth(0.9f),
-                shape = RoundedCornerShape(45),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = field_grey,
-                    unfocusedContainerColor = Color.Transparent,
-                    focusedLabelColor = theme_blue,
-                    unfocusedLabelColor = Color.Gray,
-                    focusedIndicatorColor = Color.Gray,
-                    unfocusedIndicatorColor = Color.Gray
-                ),
-                singleLine = true,
-            )
+
             Spacer(modifier = Modifier.height(300.dp))
 
             // Update Button
@@ -203,13 +186,16 @@ fun AccountInfoUpdateScreen(
         updateStatus?.let {
             if (!handledUpdateStatus) {
                 if (it.first) {
+                    handledUpdateStatus = true
+
                     Toast.makeText(context, "Account updated successfully!", Toast.LENGTH_SHORT)
                         .show()
                     navController.popBackStack()
                 } else {
+                    handledUpdateStatus = true
+
                     Toast.makeText(context, "Error: ${it.second}", Toast.LENGTH_SHORT).show()
                 }
-                handledUpdateStatus = true
             }
         }
     }

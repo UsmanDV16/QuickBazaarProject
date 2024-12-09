@@ -74,7 +74,7 @@ class ProductDetailViewModel() : ProductViewModel() {
                         var ratingSum = 0
 
                         for (reviewSnapshot in snapshot.children) {
-                            val userId = reviewSnapshot.key ?: "Unknown User"
+                            val userId = snapshot.key ?: "Unknown User"
                             val ratingAndText = reviewSnapshot.children.firstOrNull()
                             val rating = ratingAndText?.key?.toIntOrNull() ?: 0
                             val text = ratingAndText?.value?.toString().orEmpty()

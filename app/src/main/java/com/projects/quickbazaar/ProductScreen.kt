@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,36 +33,73 @@ import com.projects.quickbazaar.ui.theme.field_grey
 import com.projects.quickbazaar.ui.theme.theme_blue
 import com.projects.quickbazaar.ui.theme.theme_orange
 import com.projects.quickbazaar.ui.theme.theme_red
+import kotlinx.coroutines.launch
 import org.w3c.dom.Text
 
 @Composable
-fun ProductImageSlider(images: List<String>) {
-    val pagerState = rememberPagerState(initialPage = 0){images.size}
+fun ProductImageSlider(
+    images: List<String>,
+    pagerState: PagerState
+) {
+    val coroutineScope = rememberCoroutineScope() // Scoped to the Composable lifecycle
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(250.dp)
+            .height(250.dp).background(Color.Black)
     ) {
         // Horizontal Pager for images
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize().padding(start=65.dp)
         ) { page ->
-            AsyncImage(model = images[page],
+            AsyncImage(
+                model = images[page],
                 contentDescription = "Product Image",
-                contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(8.dp))
+                    .size(200.dp)
             )
         }
+
+        // Backward Button
+        Icon(
+            painter = painterResource(id = R.drawable.arrow_left),
+            contentDescription = "Previous Image",
+            tint = Color.Unspecified,
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .size(48.dp)
+                .clickable {
+                    coroutineScope.launch {
+                        val previousPage = (pagerState.currentPage - 1).coerceAtLeast(0)
+                        pagerState.animateScrollToPage(previousPage)
+                    }
+                }
+                .padding(8.dp)
+        )
+
+        // Forward Button
+        Icon(
+            painter = painterResource(id = R.drawable.arrow_right),
+            contentDescription = "Next Image",
+            tint = Color.Unspecified,
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .size(48.dp)
+                .clickable {
+                    coroutineScope.launch {
+                        val nextPage = (pagerState.currentPage + 1).coerceAtMost(images.size - 1)
+                        pagerState.animateScrollToPage(nextPage)
+                    }
+                }
+                .padding(8.dp)
+        )
 
         // Indicator Row
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp),
+                .align(Alignment.BottomCenter)
+                .padding(8.dp),
             horizontalArrangement = Arrangement.Center
         ) {
             repeat(images.size) { index ->
@@ -78,6 +116,7 @@ fun ProductImageSlider(images: List<String>) {
 }
 
 
+
 @Composable
 fun ProductScreen(
     navController: NavHostController,
@@ -92,6 +131,16 @@ fun ProductScreen(
     val reviews = productViewModel._reviews
     val exploreProducts = productViewModel._exploreProducts
     val isAddedToCart = productViewModel._isAddedToCart
+    var pagerState= rememberPagerState(0, 0F, { 0 })
+    if(!product.value.images.isEmpty()) {
+        pagerState = rememberPagerState(
+
+            initialPage = 0,
+            initialPageOffsetFraction = 0F,
+            pageCount = { product.value.images.size }
+        )
+    }
+
 
     LaunchedEffect(productId) {
         if(productViewModel._product.value.name==""||productViewModel._product.value.id!=productId)
@@ -125,7 +174,7 @@ fun ProductScreen(
         ) {
             // Product Images
             item {
-                ProductImageSlider(images = product.value.images)
+                ProductImageSlider(images = product.value.images, pagerState)
             }
 
             // Product Details

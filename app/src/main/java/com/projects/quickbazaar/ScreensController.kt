@@ -26,37 +26,58 @@ class ScreensControllerHost constructor(navController:NavHostController, network
 
     var network_monitor:NetworkMonitor=networkMonitor
     var nav_controller:NavHostController=navController
+    val isConnected = network_monitor.isConnected
+    val homeViewModel = HomeViewModel()
+    val accountUpdateViewModel=AccountUpdateViewModel()
+
+    var loginViewModel=LoginViewModel()
+    var signUpViewModel=SignUpViewModel()
+    var categoryViewModel=CategoryViewModel()
+    var categoryProductsViewModel=CategoryProductsViewModel()
+    var changePasswordViewModel=ChangePasswordViewModel()
+    var orderHistoryViewModel=OrderHistoryViewModel()
+    var trackOrderViewModel=TrackOrderViewModel()
+    var newArrivalsViewModel=NewArrivalsViewModel()
+    var productViewModel=ProductDetailViewModel()
+    var resetPasswordViewModel=ResetPasswordViewModel()
+    var cartViewModel = CartViewModel()
+    var checkoutViewModel=CheckoutViewModel()
+
+    public fun  reset()
+    {
+        loginViewModel=LoginViewModel()
+        signUpViewModel=SignUpViewModel()
+        categoryViewModel=CategoryViewModel()
+        categoryProductsViewModel=CategoryProductsViewModel()
+        changePasswordViewModel=ChangePasswordViewModel()
+        orderHistoryViewModel=OrderHistoryViewModel()
+        trackOrderViewModel=TrackOrderViewModel()
+        newArrivalsViewModel=NewArrivalsViewModel()
+        productViewModel=ProductDetailViewModel()
+        resetPasswordViewModel=ResetPasswordViewModel()
+        cartViewModel = CartViewModel()
+        checkoutViewModel=CheckoutViewModel()
+
+    }
+
     @Composable
     public fun AppNavHost(context: Context)
     {
-        val isConnected by network_monitor.isConnected.observeAsState(initial = true)
-        val homeViewModel = HomeViewModel()
-        val accountUpdateViewModel=AccountUpdateViewModel()
-        val cartViewModel = CartViewModel()
-        val checkoutViewModel=CheckoutViewModel()
-        val loginViewModel=LoginViewModel()
-        val signUpViewModel=SignUpViewModel()
-        val categoryViewModel=CategoryViewModel()
-        val categoryProductsViewModel=CategoryProductsViewModel()
-        val changePasswordViewModel=ChangePasswordViewModel()
-        val orderHistoryViewModel=OrderHistoryViewModel()
-        val trackOrderViewModel=TrackOrderViewModel()
-        val newArrivalsViewModel=NewArrivalsViewModel()
-        val productViewModel=ProductDetailViewModel()
-        val resetPasswordViewModel=ResetPasswordViewModel()
+
 
         val bottomNavDestinations = listOf("home", "categories")
         val inSearch=listOf("search/{searchQuery}", "searching")
 
 
-        if (!isConnected) {
+
+        if (!isConnected.value!!) {
             // Navigate to "No Internet" screen
             nav_controller.navigate("noInternet") {
                 popUpTo(nav_controller.graph.startDestinationId) { inclusive = true }
             }
 
         }
-        if (isConnected&& nav_controller.currentDestination?.route =="noInternet") {
+        if (isConnected.value!!&& nav_controller.currentDestination?.route =="noInternet") {
             nav_controller.popBackStack() // Go back to the previous screen
         }
 
@@ -98,9 +119,10 @@ class ScreensControllerHost constructor(navController:NavHostController, network
         ) { paddingValues ->
             NavHost(
                 navController = nav_controller,
-                startDestination = "welcome",
+                startDestination = "appEntryPoint",
                 modifier = Modifier.padding(paddingValues)
             ) {
+                composable("appEntryPoint"){ AppEntryPoint(context, nav_controller) }
                 // Define all your composable destinations
                 composable("welcome") { WelcomeScreen(nav_controller) }
                 composable("login") {
@@ -116,17 +138,21 @@ class ScreensControllerHost constructor(navController:NavHostController, network
                     nav_controller,
                     false,
                     true,
-                    searchQuery = query
+                    searchQuery = query,
+                        homeViewModel
                 ) }
                 composable("categories") {
                     CategoriesScreen(
                         nav_controller,
                         categoryViewModel)
                 }
-                composable("categoryProducts/{categoryName}") { backStackEntry ->
+                composable("categoryProducts/{cId}/{categoryName}") { backStackEntry ->
                     val categoryName = backStackEntry.arguments?.getString("categoryName") ?: ""
+                    val categoryId = backStackEntry.arguments?.getString("cId") ?: ""
+
                     CategoryProductsScreen(
                         nav_controller,
+                        categoryId,
                         categoryName,
                         categoryProductsViewModel
                     )

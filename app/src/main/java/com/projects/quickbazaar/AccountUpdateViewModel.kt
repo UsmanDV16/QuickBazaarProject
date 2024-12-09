@@ -12,7 +12,6 @@ class AccountUpdateViewModel : ViewModel() {
         get() = _updateStatus
 
 
-
     fun updateUser(
         userId: String,
         name: String,

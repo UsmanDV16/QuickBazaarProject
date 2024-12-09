@@ -100,7 +100,7 @@ class CheckoutViewModel : ViewModel() {
                     }
 
                     val orderData = mapOf(
-                        "Amount" to totalAmount,
+                        "Amount" to totalAmount.value,
                         "Payment_By" to paymentMethod,
                         "Order_Time_and_Date" to orderTime,
                         "Address" to address,

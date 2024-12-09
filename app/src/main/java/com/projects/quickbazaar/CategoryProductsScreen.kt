@@ -21,6 +21,7 @@ import com.projects.quickbazaar.ui.theme.theme_orange
 
 @Composable
 fun CategoryProductsScreen(navController:NavHostController,
+                           categoryId:String,
                            categoryName: String,
                            categoryProductsViewModel: CategoryProductsViewModel = viewModel()
 )
@@ -28,6 +29,9 @@ fun CategoryProductsScreen(navController:NavHostController,
     val products = categoryProductsViewModel.products
     val isLoading = categoryProductsViewModel.isLoading
     val showLoadMore = remember { mutableStateOf(true) }
+    LaunchedEffect(Unit){
+        categoryProductsViewModel.fetchAllProducts(categoryId)
+    }
     Row(
         verticalAlignment = Alignment.Top,
         modifier = Modifier.padding(10.dp)
