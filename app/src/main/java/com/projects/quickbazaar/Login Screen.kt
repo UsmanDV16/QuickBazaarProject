@@ -1,5 +1,6 @@
 package com.projects.quickbazaar
 
+import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
@@ -20,6 +21,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -39,6 +42,7 @@ fun LoginScreen(navController:NavHostController, loginViewModel: LoginViewModel 
     var password by remember { mutableStateOf("") }
     var handledLoginStatus by remember { mutableStateOf(false) }
     val loginStatus by loginViewModel.loginStatus.observeAsState()
+    val context= LocalContext.current
 
     Column (
         horizontalAlignment = AbsoluteAlignment.Left,
@@ -101,6 +105,7 @@ fun LoginScreen(navController:NavHostController, loginViewModel: LoginViewModel 
 
         // Password Text Field
         OutlinedTextField(
+            visualTransformation =PasswordVisualTransformation(),
             value = password,
             onValueChange = { password = it },
             label = { Text("Password", fontWeight = FontWeight.Bold) },
@@ -128,13 +133,22 @@ fun LoginScreen(navController:NavHostController, loginViewModel: LoginViewModel 
             modifier = Modifier
                 .align(Alignment.End)
                 .padding(end = 32.dp)
-                .clickable { /* Handle forgot password action */ }
+                .clickable { navController.navigate("resetPassword") }
         )
 
         Spacer(modifier = Modifier.height(32.dp))
 
         // Log In Button
-        CustomButton.LongButton(onClick = { loginViewModel.login(email, password)  },
+        CustomButton.LongButton(onClick = {
+            if(isValidEmail(email))
+                loginViewModel.login(email, password)
+            else
+                Toast.makeText(
+                    context,
+                    // Use the retrieved context
+                    "Email format not correct",
+                    Toast.LENGTH_SHORT
+                ).show() },
             colors = ButtonDefaults.outlinedButtonColors(containerColor= theme_orange),
             border = BorderStroke(3.dp, theme_blue),
             text = "Log in")
@@ -159,7 +173,7 @@ fun LoginScreen(navController:NavHostController, loginViewModel: LoginViewModel 
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-
+/*
         // OR Text
         Text(
             text = "OR",
@@ -168,12 +182,11 @@ fun LoginScreen(navController:NavHostController, loginViewModel: LoginViewModel 
             fontWeight = FontWeight.Bold
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(16.dp))*/
 
         // Google Sign-In Button
-        Button(
-            onClick = { /* Handle Google sign-in */ },
-            shape = CircleShape,
+        /*Button(
+            onClick = { *//* Handle Google sign-in *//* },
             colors = ButtonDefaults.buttonColors(containerColor = Color.White),
             border = BorderStroke(2.dp, Color.Gray),
             modifier = Modifier.size(50.dp)
@@ -181,24 +194,32 @@ fun LoginScreen(navController:NavHostController, loginViewModel: LoginViewModel 
             Image(
                 painter = painterResource(id = R.drawable.ic_google), // Replace with your Google icon resource
                 contentDescription = "Google Sign-In",
-                modifier = Modifier.size(50.dp)
+                modifier = Modifier.fillMaxSize()
             )
-        }
+        }*/
     }
 
     loginStatus?.let {
         if (!handledLoginStatus) {
             if (it.first) {
+                handledLoginStatus=true
+                val sharedPreferences = context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
+                val editor = sharedPreferences.edit()
+                editor.putBoolean("isLoggedIn", true)
+                editor.putString("email", email)
+                editor.putString("password", password)
+                editor.apply()
                 Toast.makeText(LocalContext.current, "Logged-in Successfully!", Toast.LENGTH_SHORT)
                     .show()
                 navController.navigate("home")
-
+                Log.d("eloo", "Hello")
             } else {
+                handledLoginStatus=true
                 Toast.makeText(LocalContext.current, "Error: ${it.second}", Toast.LENGTH_SHORT)
                     .show()
                 Log.d(it.second, "k")
             }
-            handledLoginStatus=true
+
         }
     }
 }

@@ -65,9 +65,8 @@ import kotlinx.coroutines.currentCoroutineContext
 
 
 @Composable
-fun TrackOrderScreen(navController: NavHostController, orderId: String) {
-    val viewModel: TrackOrderViewModel = viewModel()
-    val orderDetails by viewModel.orderDetails.observeAsState()
+fun TrackOrderScreen(navController: NavHostController, orderId: String, viewModel: TrackOrderViewModel) {
+    val orderDetails = viewModel._orderDetails
 
     LaunchedEffect(Unit) {
         viewModel.fetchOrderDetails(orderId)
@@ -104,11 +103,11 @@ fun TrackOrderScreen(navController: NavHostController, orderId: String) {
         LazyColumn(
             modifier = Modifier.fillMaxSize()
         ) {
-            orderDetails?.let { order ->
+
                 item {
                     // Order ID
                     Text(
-                        text = "Order ID: ${order.orderId}",
+                        text = "Order ID: ${orderDetails.value!!.orderId}",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black,
@@ -124,7 +123,7 @@ fun TrackOrderScreen(navController: NavHostController, orderId: String) {
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
 
-                    order.products.forEach { (productId, quantity) ->
+                    orderDetails.value!!.products.forEach { (productId, quantity) ->
                         Text(
                             text = "$quantity x $productId",
                             fontSize = 16.sp,
@@ -144,10 +143,10 @@ fun TrackOrderScreen(navController: NavHostController, orderId: String) {
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
 
-                    val statusText = when (order.status) {
-                        "Received", "In Progress" -> "In preparation/packaging"
+                    val statusText = when (orderDetails.value!!.status) {
+                        "Received/In-Progress" -> "In preparation/packaging"
                         "Dispatched" -> "Departured from Warehouse"
-                        else -> order.status
+                        else -> orderDetails.value!!.status
                     }
 
                     Text(
@@ -162,7 +161,7 @@ fun TrackOrderScreen(navController: NavHostController, orderId: String) {
 
                     // Expected Arrival
                     Text(
-                        text = "Expected Arrival: ${order.expectedArrival}",
+                        text = "Expected Arrival: ${orderDetails.value!!.expectedArrival}",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = theme_blue,
@@ -172,7 +171,7 @@ fun TrackOrderScreen(navController: NavHostController, orderId: String) {
             }
         }
     }
-}
+
 
 /*
 fun TrackOrderScreen() {

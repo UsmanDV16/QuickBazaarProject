@@ -103,7 +103,7 @@ fun BottomNavigationBar(navController: NavHostController) {
         BottomNavigationItem(
             selected = currentRoute == "cart",
             onClick = {
-                navController.navigate("cart") {
+                navController.navigate("cart/${getCurrentUserId()}") {
                     popUpTo(navController.graph.startDestinationId) { saveState = true }
                     launchSingleTop = true
                     restoreState = true

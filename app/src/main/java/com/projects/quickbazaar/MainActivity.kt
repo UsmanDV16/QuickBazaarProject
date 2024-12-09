@@ -2,6 +2,7 @@ package com.projects.quickbazaar
 
 import com.google.firebase.FirebaseApp
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -13,6 +14,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -23,8 +26,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 
 import androidx.navigation.compose.rememberNavController
-import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import com.projects.quickbazaar.ui.theme.QuickBazaarTheme
 import kotlinx.coroutines.Dispatchers
 
@@ -34,10 +37,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
         setContent {
-
+            val context= LocalContext.current
             val nav_control = rememberNavController()
-            val screen_controller = ScreensControllerHost(nav_control)
-            screen_controller.AppNavHost()
+            val networkMonitor= remember {
+                mutableStateOf(NetworkMonitor(this))
+            }
+            val screen_controller = ScreensControllerHost(nav_control, networkMonitor.value)
+            screen_controller.AppNavHost(context)
             /*var lol = "https://randomuser.me/api/portraits/men/32.jpg"
             AsyncImage(
                 model =
@@ -49,15 +55,7 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop,
             )
-            AsyncImage(
-                model = "https://i.ibb.co/hczrQhX/men-t-shirt-2.jpg",
-                contentDescription = "Image Loader",
-                modifier = Modifier
-                    .size(50.dp)
-                    .background(Color.White, CircleShape)
-                    .clip(CircleShape),
-                contentScale = ContentScale.FillBounds
-            )*/
+            */
 
 
         }

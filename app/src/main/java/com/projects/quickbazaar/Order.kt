@@ -4,5 +4,6 @@ data class Order(
     val orderId: String,
     val status: String,
     val timeDate: String,
-    val products: Map<String, Int>
+    val products: Map<String, Pair<Int, String>>,
+    val Amount: String
 )

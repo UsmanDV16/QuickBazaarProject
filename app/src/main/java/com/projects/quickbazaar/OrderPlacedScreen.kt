@@ -18,13 +18,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
 import com.projects.quickbazaar.ui.theme.theme_blue
 
-@Preview
 @Composable
-fun OrderPlacedScreen() {
-    var orderId by remember { mutableStateOf("12945378840920") }
-    var orderTime by remember { mutableStateOf("1:25:59 pm, 11/10/24") }
+fun OrderPlacedScreen(navController: NavHostController,
+                      timeAndDate:String,
+                      orderId:String) {
 
 
     Column (
@@ -78,7 +78,7 @@ fun OrderPlacedScreen() {
         )
 
         Text(
-            text = orderTime,
+            text = timeAndDate,
             fontSize = 16.sp,
             color = Color.Gray
         )
@@ -93,7 +93,7 @@ fun OrderPlacedScreen() {
 
         // Track Order Button
         Button(
-            onClick = { /* Handle track order click */ },
+            onClick = { navController.navigate("trackOrder/$orderId") },
             border = BorderStroke(3.dp, theme_blue),
             colors = ButtonDefaults.buttonColors(Color(0xFFFFA500))
         ) {

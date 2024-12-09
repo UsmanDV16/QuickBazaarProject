@@ -1,5 +1,8 @@
 package com.projects.quickbazaar
 
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -15,6 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -22,9 +27,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import coil3.compose.AsyncImage
+import coil.compose.AsyncImage
+import com.projects.quickbazaar.ui.theme.field_grey
 import com.projects.quickbazaar.ui.theme.theme_blue
 import com.projects.quickbazaar.ui.theme.theme_orange
+import com.projects.quickbazaar.ui.theme.theme_red
+import org.w3c.dom.Text
 
 @Composable
 fun ProductImageSlider(images: List<String>) {
@@ -76,21 +84,28 @@ fun ProductScreen(
     productId: String,
     productViewModel: ProductDetailViewModel = viewModel()
 ) {
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {}
+    }
     // Observe data from the ViewModel
-    val product by productViewModel.product.collectAsState()
-    val reviews by productViewModel.reviews.collectAsState()
-    val exploreProducts by productViewModel.exploreProducts.collectAsState()
-    val isAddedToCart by productViewModel.isAddedToCart.collectAsState()
+    val product = productViewModel._product
+    val reviews = productViewModel._reviews
+    val exploreProducts = productViewModel._exploreProducts
+    val isAddedToCart = productViewModel._isAddedToCart
 
     LaunchedEffect(productId) {
-        productViewModel.loadProduct(productId)
+        if(productViewModel._product.value.name==""||productViewModel._product.value.id!=productId)
+            productViewModel.loadProduct(productId)
+        productViewModel.is_in_cart(productId)
     }
 
-    Column {
-        // Back Button
+    Column(
+        modifier=Modifier.fillMaxSize().padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
         Row(
             modifier = Modifier
-                .padding(10.dp)
+                .padding(top=16.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -106,38 +121,59 @@ fun ProductScreen(
 
         LazyColumn(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
+                .nestedScroll(nestedScrollConnection)
         ) {
             // Product Images
             item {
-                ProductImageSlider(images = product.images)
+                ProductImageSlider(images = product.value.images)
             }
 
             // Product Details
             item {
                 Text(
-                    text = product.name,
+                    text = product.value.name,
                     fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = theme_blue
-                )
-                Text(
-                    text = "⭐ ${product.rating} (${product.totalReviews} Reviews)",
-                    fontSize = 14.sp,
-                    color = Color.Gray
-                )
-                Text(
-                    text = "Rs. ${product.price}",
-                    fontSize = 18.sp,
-                    color = theme_orange,
                     fontWeight = FontWeight.Bold
                 )
+                Row(verticalAlignment = Alignment.CenterVertically)
+                {
+                    Icon(
+                        painterResource(id = R.drawable.star), contentDescription = "review stars",
+                        tint = theme_blue, modifier = Modifier.size(18.dp)
+                    )
+                    Text(
+                        text = "${product.value.rating} (${product.value.totalReviews} Reviews)",
+                        fontSize = 14.sp,
+                        color = theme_blue
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                {
+                    Text(
+                        text = "Rs. ${product.value.price}",
+                        fontSize = 27.sp,
+                        color = theme_red,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
                 Text(
-                    text = product.description,
-                    fontSize = 14.sp,
+                    "Description",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.ExtraBold,
                     color = theme_blue,
                     modifier = Modifier.padding(vertical = 8.dp)
+                )
+
+                Text(
+                    text = product.value.description,
+                    fontSize = 14.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(bottom = 8.dp)
                 )
             }
 
@@ -145,47 +181,44 @@ fun ProductScreen(
             item {
                 Text(
                     text = "Reviews",
-                    fontSize = 18.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = theme_blue,
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
             }
-            items(reviews) { review ->
-                Card(
+            item {
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    shape = RoundedCornerShape(8.dp)
+                        .background(field_grey, shape = RoundedCornerShape(25.dp))
+                        .height(100.dp)
+                        .padding(8.dp),
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = review.username,
-                            fontWeight = FontWeight.Bold,
-                            color = theme_blue
-                        )
-                        Text(
-                            text = "⭐ ${review.rating}",
-                            color = theme_orange
-                        )
-                        Text(
-                            text = review.text,
-                            fontSize = 14.sp,
-                            color = Color.Gray
-                        )
+                    LazyColumn() {
+                        items(reviews) { review ->
+                            ReviewItem(review = review)
+                        }
+
                     }
                 }
             }
 
             // Explore Products Section
             item {
-                Text(
-                    text = "- Explore -",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = theme_blue,
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
+                Spacer(modifier = Modifier.height(20.dp))
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "- Explore -",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = theme_blue,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+                }
             }
             items(exploreProducts.chunked(2)) { row ->
                 Row(
@@ -193,32 +226,120 @@ fun ProductScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     row.forEach { product ->
-                        ProductCard(navController, product = product, modifier = Modifier.weight(1f))
+                        ProductCard(
+                            navController,
+                            product = product,
+                            modifier = Modifier.weight(1f)
+                        )
                     }
                 }
             }
 
-            // Add to Cart Button
-            item {
-                Button(
-                    onClick = {
-                        productViewModel.addToCart(product.id)
-                    },
-                    enabled = !isAddedToCart,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = theme_orange,
-                        disabledContainerColor = Color.Gray
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 16.dp)
-                ) {
+        }
+
+        Row(
+            verticalAlignment = Alignment.Bottom,
+            modifier = Modifier.fillMaxWidth().height(90.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+
+            Button(
+                onClick = {
+                    productViewModel.addToCart(productId)
+
+                },
+                enabled = !isAddedToCart.value,
+                modifier = Modifier
+                    .width(120.dp)
+                    .fillMaxHeight()
+                    .padding(vertical = 10.dp),
+                border = BorderStroke(3.dp, theme_blue),
+                shape = RoundedCornerShape(40),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = theme_orange, disabledContainerColor = field_grey,
+                    disabledContentColor = Color.Gray
+                )
+            ) {
+                Text(
+                    text = "Add to Cart",
+                    color = theme_blue,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.ExtraBold
+                )
+
+            }
+        }
+
+
+        }
+    }
+
+
+
+// Fixed ReviewItem Component
+@Composable
+fun ReviewItem(review:Review)
+{
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .background(Color.Transparent),
+        verticalAlignment = Alignment.CenterVertically
+
+    ) {
+        Column(
+modifier = Modifier.padding(5.dp)
+        )
+        {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            )
+            {
+                Row(horizontalArrangement = Arrangement.Start)
+                {
+                    Icon(
+                        painterResource(id = R.drawable.profile_icon),
+                        contentDescription = "profile",
+                        tint = theme_blue,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(2.dp))
                     Text(
-                        text = if (isAddedToCart) "Added to Cart" else "Add to Cart",
-                        color = Color.White
+                        review.username,
+                        color = theme_blue,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp
                     )
                 }
+                Row()
+                {
+                    RatingStars(rating = review.rating)
+                }
             }
+            Spacer(modifier = Modifier.height(3.dp))
+            Text(
+                review.text,
+                fontWeight = FontWeight.Medium,
+                fontSize = 12.sp
+            )
+
+        }
+    }
+}
+
+
+@Composable
+fun RatingStars(rating: Int, maxRating: Int = 5) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        for (i in 1..maxRating) {
+            Icon(
+                painter = painterResource(
+                    id = if (i <= rating) R.drawable.star_filled else R.drawable.star
+                ),
+                contentDescription = null,
+                tint = theme_blue, // Adjust color as needed
+                modifier = Modifier.size(15.dp)
+            )
         }
     }
 }

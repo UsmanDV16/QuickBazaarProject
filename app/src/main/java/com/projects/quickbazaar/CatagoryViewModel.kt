@@ -27,11 +27,8 @@ class CategoryViewModel : ViewModel() {
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    init {
-        fetchCategories()
-    }
 
-    private fun fetchCategories() {
+    fun fetchCategories() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val snapshot = database.get().await()

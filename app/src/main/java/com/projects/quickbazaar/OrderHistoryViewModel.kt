@@ -17,75 +17,65 @@ class OrderHistoryViewModel : ViewModel() {
     val orderList: LiveData<List<Order>>
         get() = _orderList
 
-
+    fun fetchProductName(productId: String): String? {
+        return try {
+            val productRef = database.child("Products").child(productId).child("Name").get()
+            productRef.result.value.toString()?:""
+        } catch (e: Exception) {
+            Log.e("FetchProductName", "Error fetching product name: ${e.message}")
+            null
+        }
+    }
 
     fun fetchOrders(userId: String) {
         val orders = mutableListOf<Order>()
 
-        // Fetch current orders and previous orders in parallel
-        val currentOrdersRef = database.child("Orders")
-        val previousOrdersRef = database.child("Users").child(userId).child("Previous_Orders")
+        val currentOrdersRef = database.child("Order")
+        val previousOrdersRef = database.child("Users/$userId/Previous_Orders")
 
-        currentOrdersRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(currentSnapshot: DataSnapshot) {
-                // Add current orders to the list
-                currentSnapshot.children.forEach { orderSnapshot ->
-                    val orderId = orderSnapshot.key ?: return@forEach
-                    val userIdFromDb = orderSnapshot.child("UserID").getValue(String::class.java) ?: ""
+        previousOrdersRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(previousSnapshot: DataSnapshot) {
+                val previousOrderIds = previousSnapshot.children.mapNotNull { it.key }.toSet()
 
-                    // Include only orders for the given user
-                    if (userIdFromDb == userId) {
-                        val status = orderSnapshot.child("Status").getValue(String::class.java) ?: "Unknown"
-                        val timeDate = orderSnapshot.child("Order_Time_and_Date").getValue(String::class.java) ?: "Unknown"
-                        val productMap = mutableMapOf<String, Int>()
-
-                        orderSnapshot.child("Products").children.forEach { productSnapshot ->
-                            val productId = productSnapshot.key ?: return@forEach
-                            val quantity = productSnapshot.getValue(Int::class.java) ?: 0
-                            productMap[productId] = quantity
-                        }
-
-                        orders.add(Order(orderId, status, timeDate, productMap))
-                    }
-                }
-
-                // Fetch previous orders once current orders are processed
-                previousOrdersRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onDataChange(previousSnapshot: DataSnapshot) {
-                        // Add previous orders to the list
-                        previousSnapshot.children.forEach { orderSnapshot ->
+                currentOrdersRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(currentSnapshot: DataSnapshot) {
+                        currentSnapshot.children.forEach { orderSnapshot ->
                             val orderId = orderSnapshot.key ?: return@forEach
-                            val status = orderSnapshot.child("Status").getValue(String::class.java) ?: "Unknown"
-                            val timeDate = orderSnapshot.child("Order_Time_and_Date").getValue(String::class.java) ?: "Unknown"
-                            val productMap = mutableMapOf<String, Int>()
+                            if (previousOrderIds.contains(orderId)) {
+                                val status = orderSnapshot.child("Status").getValue(String::class.java) ?: "Unknown"
+                                val timeDate = orderSnapshot.child("Order_Time_and_Date").getValue(String::class.java) ?: "Unknown"
+                                val userIdFromDb = orderSnapshot.child("UID").getValue(String::class.java) ?: ""
+                                val amount=orderSnapshot.child("Amount").value.toString()?:""
+                                val productMap = mutableMapOf<String, Pair<Int, String>>()
 
-                            orderSnapshot.child("Products").children.forEach { productSnapshot ->
-                                val productId = productSnapshot.key ?: return@forEach
-                                val quantity = productSnapshot.getValue(Int::class.java) ?: 0
-                                productMap[productId] = quantity
-                            }
+                                orderSnapshot.child("Product").children.forEach { productSnapshot ->
+                                    val productId = productSnapshot.key ?: return@forEach
+                                    val quantity = productSnapshot.getValue(Int::class.java) ?: 0
+                                    productMap[productId] = Pair<Int, String>(quantity, fetchProductName(productId)!!)
+                                }
 
-                            // Avoid duplicates by checking if the order ID already exists
-                            if (orders.none { it.orderId == orderId }) {
-                                orders.add(Order(orderId, status, timeDate, productMap))
+                                if (userIdFromDb == userId) {
+                                    orders.add(Order(orderId, status, timeDate, productMap, amount))
+                                }
                             }
                         }
 
-                        // Update LiveData with the combined list of orders
+                        // Post the combined list of orders
                         _orderList.postValue(orders)
                     }
 
                     override fun onCancelled(error: DatabaseError) {
-                        Log.e("OrderHistoryViewModel", "Error fetching previous orders: ${error.message}")
+                        Log.e("OrderHistoryViewModel", "Error fetching current orders: ${error.message}")
                     }
                 })
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.e("OrderHistoryViewModel", "Error fetching current orders: ${error.message}")
+                Log.e("OrderHistoryViewModel", "Error fetching previous orders: ${error.message}")
             }
         })
     }
+
 }
 
 

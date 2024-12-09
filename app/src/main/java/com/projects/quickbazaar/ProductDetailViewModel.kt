@@ -1,5 +1,7 @@
 package com.projects.quickbazaar
 
+import android.util.Log
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -16,43 +18,97 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 
-class ProductDetailViewModel(private val pId: String) : ProductViewModel() {
+class ProductDetailViewModel() : ProductViewModel() {
 
-    private val _product = MutableStateFlow(Product())
-    val product: StateFlow<Product> = _product
+    val _product = mutableStateOf(Product())
 
-    private val _reviews = MutableStateFlow<List<Review>>(emptyList())
-    val reviews: StateFlow<List<Review>> = _reviews
+    val _reviews = mutableStateListOf<Review>()
 
-    private val _exploreProducts = MutableStateFlow<List<ProductHighlight>>(emptyList())
-    val exploreProducts: StateFlow<List<ProductHighlight>> = _exploreProducts
+    val _exploreProducts = mutableStateListOf<ProductHighlight>()
 
-    private val _isAddedToCart = MutableStateFlow(false)
-    val isAddedToCart: StateFlow<Boolean> = _isAddedToCart
+    val _isAddedToCart = mutableStateOf(false)
 
-    init {
-        loadProduct(pId)
-    }
+    var totalReviews = mutableIntStateOf(0)
+    var avgRating = mutableIntStateOf(0)
+
     fun loadProduct(productId: String) {
-        // Fetch product details from Firebase
-        Firebase.database.getReference("Product/$productId").get().addOnSuccessListener { snapshot ->
-            val product = snapshot.getValue(Product::class.java)!!
-            _product.value = product
-            loadReviews(productId)
-            fetchProducts()
+
+        Firebase.database.getReference("Product/$productId").get()
+            .addOnSuccessListener { snapshot ->
+                if (snapshot.exists()) {
+                    val name = snapshot.child("Name").value?.toString() ?: "Unknown"
+                    val price = snapshot.child("Price").value?.toString()?.toIntOrNull() ?: 0
+                    val description =
+                        snapshot.child("Description").value?.toString() ?: "No description"
+                    val images =
+                        snapshot.child("Images").children.mapNotNull { it.value?.toString() }
+                    val categoryID = snapshot.child("CategoryID").value?.toString() ?: ""
+
+                    val product = Product(
+                        id = productId,
+                        name = name,
+                        price = price,
+                        description = description,
+                        categoryID = categoryID,
+                        images = images
+                    )
+
+                    _product.value = product
+                    loadReviews(productId)
+                    fetchProducts()
+                } else {
+                    Log.e("loadProduct", "No product found with ID $productId")
+                }
+            }.addOnFailureListener { exception ->
+            Log.e("loadProduct", "Error loading product: ${exception.message}")
         }
     }
+
 
     private fun loadReviews(productId: String) {
-        Firebase.database.getReference("Product/$productId/Reviews").get().addOnSuccessListener { snapshot ->
-            val reviews = snapshot.children.map { it.getValue(Review::class.java)!! }
-            _reviews.value = reviews
-        }
+        Firebase.database.getReference("Product/$productId/Reviews").get()
+            .addOnSuccessListener { snapshot ->
+                if (snapshot.exists()) {
+                    try {
+                        val reviews = mutableListOf<Review>()
+                        var ratingSum = 0
+
+                        for (reviewSnapshot in snapshot.children) {
+                            val userId = reviewSnapshot.key ?: "Unknown User"
+                            val ratingAndText = reviewSnapshot.children.firstOrNull()
+                            val rating = ratingAndText?.key?.toIntOrNull() ?: 0
+                            val text = ratingAndText?.value?.toString().orEmpty()
+
+                            if (rating > 0) { // Only add valid reviews
+                                ratingSum += rating
+                                totalReviews.intValue++
+
+                                _reviews.add(
+                                    Review(
+                                        username = getUserName(userId),
+                                        rating = rating,
+                                        text = text
+                                    )
+                                )
+                            }
+                        }
+                        avgRating.intValue = if (totalReviews.intValue > 0) ratingSum / totalReviews.intValue else 0
+                    } catch (e: Exception) {
+                        Log.e("loadReviews", "Error parsing reviews: ${e.message}")
+                    }
+                } else {
+                    Log.e("loadReviews", "No reviews found for product ID $productId")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("loadReviews", "Error loading reviews: ${exception.message}")
+            }
     }
+
 
     fun fetchProducts() {
         viewModelScope.launch(Dispatchers.IO) {
-            val prod_ref=Firebase.database.getReference("Product")
+            val prod_ref = Firebase.database.getReference("Product")
 
             try {
                 // Fetch products from Firebase
@@ -60,7 +116,7 @@ class ProductDetailViewModel(private val pId: String) : ProductViewModel() {
                 val productList = mutableListOf<ProductHighlight>()
 
                 for (childSnapshot in snapshot.children) {
-                    if(childSnapshot.child("CategoryID").value?.toString()==_product.value.category) {
+                    if (childSnapshot.child("CategoryID").value?.toString() == _product.value.categoryID) {
                         val product = ProductHighlight(
                             name = childSnapshot.child("Name").value?.toString() ?: "Unknown",
                             price = childSnapshot.child("Price").value?.toString() ?: "0",
@@ -82,11 +138,25 @@ class ProductDetailViewModel(private val pId: String) : ProductViewModel() {
         }
     }
 
-    fun addToCart(productId: String) {
-        val userId = Firebase.auth.currentUser?.uid ?: return
-        val userCartRef = Firebase.database.getReference("User/$userId/Cart")
-        userCartRef.child(productId).setValue(1).addOnSuccessListener {
-            _isAddedToCart.value = true
+    fun is_in_cart(productId: String) {
+        var userCartRef = Firebase.database.getReference("Users/${getCurrentUserId()}")
+
+        userCartRef.child("Cart/$productId").get()
+            .addOnSuccessListener { snapshot ->
+                _isAddedToCart.value = snapshot.exists()
+            }
+    }
+        fun addToCart(productId: String) {
+            var userCartRef = Firebase.database.getReference("Users/${getCurrentUserId()}")
+
+            userCartRef.child("Cart").get()
+                .addOnSuccessListener {
+                        userCartRef.child("Cart").updateChildren(mapOf(Pair<String, Int>(productId, 1)))
+                            .addOnSuccessListener {
+                                _isAddedToCart.value = true
+                            }
+
+                }
         }
     }
-}
+

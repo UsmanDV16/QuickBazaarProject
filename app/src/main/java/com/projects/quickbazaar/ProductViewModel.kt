@@ -12,20 +12,17 @@ open class ProductViewModel: ViewModel() {
     // Observable state for products and loading
     val products = mutableStateListOf<ProductHighlight>()
     val allProducts = mutableStateListOf<ProductHighlight>()
-    var isLoading = mutableStateOf(true)
+    var isLoading = mutableStateOf(false)
+    var displayed=0
 
 
-
-    protected open fun fetchAllProducts()
-    {
-
-    }
 
     fun loadMoreProducts() {
-        val chunkSize = minOf(10, allProducts.size)
+        val chunkSize = minOf(10, allProducts.size-displayed)
         if (chunkSize > 0) {
-            products.addAll((allProducts.take(chunkSize)))
-            allProducts.removeAll(products)
+            products.addAll(allProducts.subList(displayed, displayed+chunkSize))
+            displayed += chunkSize
+
         }
     }
 }

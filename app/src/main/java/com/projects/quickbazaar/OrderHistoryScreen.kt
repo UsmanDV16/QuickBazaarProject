@@ -33,11 +33,11 @@ import com.projects.quickbazaar.ui.theme.theme_orange
 
 
 @Composable
-fun OrderHistoryScreen(navController: NavHostController, userId: String) {
-    val viewModel: OrderHistoryViewModel = viewModel()
-    val orders by viewModel.orderList.observeAsState(emptyList())
+fun OrderHistoryScreen(navController: NavHostController, userId: String, viewModel: OrderHistoryViewModel) {
+    val orders = viewModel.orderList.observeAsState(emptyList())
     LaunchedEffect(Unit) {
-        viewModel.fetchOrders(userId)
+        if(orders.value.isEmpty())
+            viewModel.fetchOrders(userId)
     }
 
     Column(
@@ -54,7 +54,7 @@ fun OrderHistoryScreen(navController: NavHostController, userId: String) {
                 .align(Alignment.Start)
                 .padding(10.dp)
                 .size(45.dp)
-                .clickable { /*navController.popBackStack()*/ }
+                .clickable { navController.popBackStack() }
         )
 
 
@@ -78,7 +78,7 @@ fun OrderHistoryScreen(navController: NavHostController, userId: String) {
                 .padding(8.dp)
         ) {
             LazyColumn {
-                items(orders) { order ->
+                items(orders.value) { order ->
                     OrderItem(navController, order)
                     Spacer(modifier = Modifier.height(8.dp))
                 }
@@ -98,7 +98,7 @@ fun OrderItem(navController: NavHostController, order: Order) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White, shape = RoundedCornerShape(12.dp))
+            .background(Color.Transparent, shape = RoundedCornerShape(12.dp))
             .padding(16.dp)
     ) {
         // Order ID and Track Button
@@ -119,27 +119,23 @@ fun OrderItem(navController: NavHostController, order: Order) {
                     Button(
                         onClick = {navController.navigate(("trackOrder/${order.orderId}")) },
                         colors = ButtonDefaults.buttonColors(containerColor = theme_orange),
-                        modifier = Modifier.defaultMinSize(minHeight = 32.dp, minWidth = 70.dp)
+                        modifier = Modifier.height(20.dp).width(30.dp),
+                        border = BorderStroke(2.dp, theme_blue),
+
                     ) {
                         Text(text = "Track", fontSize = 12.sp, color = theme_blue)
                     }
 
                     Spacer(modifier = Modifier.width(8.dp))
 
-                    Button(
-                        onClick = { /* Cancel Order Logic */ },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                        border = BorderStroke(1.dp, theme_blue),
-                        modifier = Modifier.defaultMinSize(minHeight = 32.dp, minWidth = 70.dp)
-                    ) {
-                        Text(text = "Cancel", fontSize = 12.sp, color = theme_blue)
-                    }
+
                 }
             } else if (order.status == "Dispatched") {
                 Button(
                     onClick = { navController.navigate("trackOrder/${order.orderId}") },
                     colors = ButtonDefaults.buttonColors(containerColor = theme_orange),
-                    modifier = Modifier.defaultMinSize(minHeight = 32.dp, minWidth = 70.dp)
+                    modifier = Modifier.height(20.dp).width(30.dp),
+                    border = BorderStroke(2.dp, theme_blue),
                 ) {
                     Text(text = "Track", fontSize = 12.sp, color = theme_blue)
                 }
@@ -157,7 +153,7 @@ fun OrderItem(navController: NavHostController, order: Order) {
 
         // Products Preview
         val productPreview = order.products.entries.joinToString(", ") { entry ->
-            "${entry.value}x ${entry.key.take(15)}..."
+            "${entry.value.first}x ${entry.value.second.take(20)}..."
         }
         Text(
             text = productPreview,
@@ -175,7 +171,7 @@ fun OrderItem(navController: NavHostController, order: Order) {
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                text = "Amount: Rs. ${order.products.values.sum()}",
+                text = "Amount: Rs. ${order.Amount}",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Red

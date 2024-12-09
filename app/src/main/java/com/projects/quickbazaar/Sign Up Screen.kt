@@ -55,8 +55,9 @@ fun SignUpScreen(navController:NavHostController, signUpViewModel: SignUpViewMod
     var phone_no by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var re_pass by remember { mutableStateOf("") }
-
+    var handeledSignUp by remember { mutableStateOf(false) }
     val signUpStatus by signUpViewModel.signUpStatus.observeAsState()
+    val context= LocalContext.current
 
     Column(
         horizontalAlignment = AbsoluteAlignment.Left,
@@ -219,16 +220,25 @@ fun SignUpScreen(navController:NavHostController, signUpViewModel: SignUpViewMod
         Spacer(modifier = Modifier.height(100.dp))
 
         CustomButton.LongButton(onClick = {
-            if (password == re_pass) {
+            if (isValidEmail(email) &&password == re_pass) {
                 signUpViewModel.signUp(name, email, phone_no, password)
             }
-           /* else {
+            else if(re_pass!=password) {
             Toast.makeText(
-                , // Use the retrieved context
+                context,
+                 // Use the retrieved context
                 "Passwords do not match",
                 Toast.LENGTH_SHORT
             ).show()
-        }*/ },
+        }
+            else if(!isValidEmail(email))
+                Toast.makeText(
+                    context,
+                    // Use the retrieved context
+                    "Email format not correct",
+                    Toast.LENGTH_SHORT
+                ).show()
+                                          },
             colors = ButtonDefaults.outlinedButtonColors(containerColor= theme_orange),
             border = BorderStroke(3.dp, theme_blue),
             text = "Create Account")
@@ -236,12 +246,19 @@ fun SignUpScreen(navController:NavHostController, signUpViewModel: SignUpViewMod
     }
 
     signUpStatus?.let {
-        if (it.first) {
-            Toast.makeText(LocalContext.current, "Sign-Up Successful!", Toast.LENGTH_SHORT).show()
-            navController.navigate("login")
-        } else {
-            Toast.makeText(LocalContext.current, "Error: ${it.second}", Toast.LENGTH_SHORT).show()
-            Log.d(it.second, "k")
+        if(!handeledSignUp) {
+            if (it.first) {
+                handeledSignUp=true
+                Toast.makeText(LocalContext.current, "Sign-Up Successful!", Toast.LENGTH_SHORT)
+                    .show()
+                navController.navigate("login")
+            } else {
+                handeledSignUp=true
+                Toast.makeText(LocalContext.current, "Error: ${it.second}", Toast.LENGTH_SHORT)
+                    .show()
+                Log.d(it.second, "k")
+            }
         }
     }
 }
+

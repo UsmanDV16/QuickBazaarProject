@@ -33,6 +33,11 @@ fun CategoriesScreen(navController: NavHostController, categoryViewModel: Catego
     val categories by categoryViewModel.categories.collectAsState()
     val isLoading = categoryViewModel.isLoading.collectAsState()
 
+    LaunchedEffect(Unit) {
+        if(categoryViewModel.categories.value.isEmpty()&&categoryViewModel.isLoading.value)
+            categoryViewModel.fetchCategories()
+    }
+
     if (isLoading.value) {
         // Show loading indicator
         Box(

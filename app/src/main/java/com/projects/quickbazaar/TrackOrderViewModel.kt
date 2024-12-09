@@ -2,6 +2,8 @@ package com.projects.quickbazaar
 
 import android.icu.text.SimpleDateFormat
 import android.util.Log
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,12 +15,10 @@ import com.google.firebase.ktx.Firebase
 import java.util.Calendar
 import java.util.Locale
 
-class TrackOrderViewModel : ViewModel() {
+class  TrackOrderViewModel : ViewModel() {
     private val database = Firebase.database.reference
 
-    private val _orderDetails = MutableLiveData<OrderDetails>()
-    val orderDetails: LiveData<OrderDetails>
-        get() = _orderDetails
+    val _orderDetails = MutableLiveData<OrderDetails>()
 
     fun fetchOrderDetails(orderId: String) {
         database.child("Order").child(orderId)
@@ -44,6 +44,7 @@ class TrackOrderViewModel : ViewModel() {
                 }
             })
     }
+
 
     private fun calculateExpectedArrival(orderTime: String): String {
         return try {

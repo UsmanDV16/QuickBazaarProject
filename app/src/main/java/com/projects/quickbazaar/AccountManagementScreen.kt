@@ -66,9 +66,8 @@ fun AccountManagementScreen(navController:NavHostController) {
             )
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Profile Icon
             Image(
-                painter = painterResource(id = R.drawable.profile_icon), // Replace with your profile icon
+                painter = painterResource(id = R.drawable.profile_icon),
                 contentDescription = "Profile Icon",
                 modifier = Modifier
                     .size(120.dp)
@@ -77,7 +76,6 @@ fun AccountManagementScreen(navController:NavHostController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Name
             Text(
                 text = "Muhammad Usman",
                 style = TextStyle(
@@ -87,7 +85,6 @@ fun AccountManagementScreen(navController:NavHostController) {
                 )
             )
 
-            // Email
             Text(
                 text = "myemail@gmail.com",
                 style = TextStyle(
@@ -99,18 +96,16 @@ fun AccountManagementScreen(navController:NavHostController) {
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            // Buttons Row
             Row(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                // Update Personal Info
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
 
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.info_update), // Replace with your icon
+                        painter = painterResource(id = R.drawable.info_update),
                         contentDescription = "Update Personal Info",
                         modifier = Modifier.size(130.dp)
                             .clickable { navController.navigate("infoUpdate") }
@@ -119,12 +114,11 @@ fun AccountManagementScreen(navController:NavHostController) {
 
                 }
 
-                // Change Password
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.change_pass), // Replace with your icon
+                        painter = painterResource(id = R.drawable.change_pass),
                         contentDescription = "Change Password",
                         modifier = Modifier.size(130.dp)
                             .clickable{navController.navigate("changePass/${getCurrentUserId()}")}
@@ -134,14 +128,13 @@ fun AccountManagementScreen(navController:NavHostController) {
                 }
             }
             Row(horizontalArrangement = Arrangement.Absolute.Center){
-                // Your Previous Orders
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .clickable { navController.navigate("orderHistory/${getCurrentUserId()}") }
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.orders_history), // Replace with your icon
+                        painter = painterResource(id = R.drawable.orders_history),
                         contentDescription = "Your Previous Orders",
                         modifier = Modifier.size(130.dp)
                     )

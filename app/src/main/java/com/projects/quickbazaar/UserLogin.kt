@@ -15,7 +15,7 @@ class UserLogin(override val auth: FirebaseAuth = FirebaseAuth.getInstance(), ov
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     // Retrieve user data from Realtime Database if needed
-                    val userId = auth.currentUser?.uid ?: ""
+                    //val userId = auth.currentUser?.uid ?: ""
                     onResult(true, null)
                 } else {
                     onResult(false, task.exception?.message)

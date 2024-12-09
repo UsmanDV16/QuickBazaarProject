@@ -1,5 +1,6 @@
 package com.projects.quickbazaar
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -154,14 +155,23 @@ fun HomeScreen(navController: NavHostController) {
 @Composable
 fun HomeScreen(
     navController: NavHostController,
-    isSearchMode: Boolean,
+    searchingMode: Boolean,
+    searchMode: Boolean,
     searchQuery: String,
     homeViewModel: HomeViewModel = viewModel()
 ) {
-    if (isSearchMode) {
+
+
+    if (homeViewModel.products.isEmpty() && !homeViewModel.isLoading.value)
+        homeViewModel.fetchAllProducts()
+
+    if (searchMode) {
         // Show search results based on the query
-        val searchResults = homeViewModel.searchProducts(searchQuery) // Assume a search function exists in the ViewModel
+        var searchResults = emptyList<ProductHighlight>()
         if (searchResults.isEmpty()) {
+           searchResults= homeViewModel.searchProducts(searchQuery) // Assume a search function exists in the ViewModel
+        }
+        if(searchResults.isEmpty()){
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -180,14 +190,18 @@ fun HomeScreen(
                 }
             }
         }
+    } else if (searchingMode) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+        )
+
     } else {
         // Default home screen content
 
-        val showLoadMore= remember {
+        val showLoadMore = remember {
             mutableStateOf(true)
         }
-
-        val products=homeViewModel.products
+        val products = homeViewModel.products
 
         val isLoading = homeViewModel.isLoading
         if (isLoading.value) {
@@ -236,7 +250,7 @@ fun HomeScreen(
                         Spacer(modifier = Modifier.width(16.dp))
 
                         OutlinedButton(
-                            onClick = { /* Navigate to Track Order */ },
+                            onClick = { navController.navigate("trackOrder/${100000}") },
                             colors = ButtonDefaults.buttonColors(containerColor = theme_orange),
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.weight(1f)
@@ -286,7 +300,7 @@ fun HomeScreen(
                                 .fillMaxWidth()
                                 .clickable {
                                     homeViewModel.loadMoreProducts()
-                                    if (homeViewModel.allProducts.isEmpty()) showLoadMore.value =
+                                    if (homeViewModel.allProducts.size==homeViewModel.displayed) showLoadMore.value =
                                         false
                                 }
                                 .padding(vertical = 16.dp),
@@ -306,6 +320,7 @@ fun HomeScreen(
                 }
             }
         }
-
     }
 }
+
+

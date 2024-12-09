@@ -7,11 +7,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.lang.reflect.Constructor
 
-class CategoryProductsViewModel(private val categoryId: String):ProductViewModel() {
+class CategoryProductsViewModel():ProductViewModel() {
 
-    init{
-        fetchAllProducts(categoryId)
-    }
 
     fun fetchAllProducts(categoryId: String) {
         viewModelScope.launch(Dispatchers.IO) {

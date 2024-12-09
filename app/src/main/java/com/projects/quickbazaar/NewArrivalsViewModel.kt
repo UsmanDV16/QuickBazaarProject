@@ -15,7 +15,7 @@ class NewArrivalsViewModel:ProductViewModel() {
         fetchAllProducts()
     }
 
-    override fun fetchAllProducts() {
+    fun fetchAllProducts() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 // Fetch all products from Firebase
